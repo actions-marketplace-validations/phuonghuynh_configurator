@@ -86,84 +86,93 @@ export class Configurator {
 
     console.log(`Downloading tool from ${downloadURL}`);
     let downloadPath: string | null = null;
-    let archivePath: string | null = null;
+    let extractLocation: string | null = null;
     const tempDir = path.join(os.tmpdir(), "tmp", "runner", "temp");
     await io.mkdirP(tempDir);
     downloadPath = await tc.downloadTool(downloadURL);
 
     switch (getArchiveType(downloadURL)) {
-      case ArchiveType.None:
-        return this.moveToPath(downloadPath);
+      // case ArchiveType.None:
+      //   return this.moveToPath(downloadPath);
 
       case ArchiveType.TarGz:
-        archivePath = await tc.extractTar(downloadPath, tempDir);
-        return this.moveToPath(path.join(archivePath, this.pathInArchive));
+        extractLocation = await tc.extractTar(downloadPath, tempDir);
+        break;
+        // return this.moveToPath(path.join(archivePath, this.pathInArchive));
 
       case ArchiveType.Zip:
-        archivePath = await tc.extractZip(downloadPath, tempDir);
-        return this.moveToPath(path.join(archivePath, this.pathInArchive));
+        extractLocation = await tc.extractZip(downloadPath, tempDir);
+        break;
+        // return this.moveToPath(path.join(archivePath, this.pathInArchive));
 
       case ArchiveType.SevenZ:
-        archivePath = await tc.extract7z(downloadPath, tempDir);
-        return this.moveToPath(path.join(archivePath, this.pathInArchive));
+        extractLocation = await tc.extract7z(downloadPath, tempDir);
+        break;
+        // return this.moveToPath(path.join(archivePath, this.pathInArchive));
     }
+
+    core.setOutput("extract_location", extractLocation);
   }
 
   async moveToPath(downloadPath: string) {
-    let toolPath = binPath();
-    await io.mkdirP(toolPath);
-    await io.mv(downloadPath, path.join(toolPath, this.name));
+    // let toolPath = binPath();
+    // await io.mkdirP(toolPath);
+    //
+    // let namePath = path.join(toolPath, this.name);
+    // await io.mv(downloadPath, namePath);
+    //
+    // core.info(`namePath: ${namePath}`);
 
-    if (process.platform !== "win32") {
-      await exec.exec("chmod", ["+x", path.join(toolPath, this.name)]);
-    }
-
-    core.addPath(toolPath);
+    // if (process.platform !== "win32") {
+    //   await exec.exec("chmod", ["+x", path.join(toolPath, this.name)]);
+    // }
+    //
+    // core.addPath(toolPath);
   }
 
   validate() {
-    if (!this.name) {
-      throw new Error(
-        `"name" is required. This is used to set the executable name of the tool.`
-      );
-    }
-
-    if (!this.fromGitHubReleases && !this.url) {
-      throw new Error(`"url" is required when downloading a tool directly.`);
-    }
-
-    if (!this.fromGitHubReleases && !matchesUrlRegex(this.url)) {
-      throw new Error(`"url" supplied as input is not a valid URL.`);
-    }
-
-    if (this.fromGitHubReleases && !matchesUrlRegex(this.urlTemplate)) {
-      throw new Error(`"urlTemplate" supplied as input is not a valid URL.`);
-    }
-
-    if (getArchiveType(this.url) !== ArchiveType.None && !this.pathInArchive) {
-      throw new Error(
-        `"pathInArchive" is required when "url" points to an archive file`
-      );
-    }
-
-    if (
-      this.fromGitHubReleases &&
-      getArchiveType(this.urlTemplate) !== ArchiveType.None &&
-      !this.pathInArchive
-    ) {
-      throw new Error(
-        `"pathInArchive" is required when "urlTemplate" points to an archive file.`
-      );
-    }
-
-    if (
-      this.fromGitHubReleases &&
-      (!this.token || !this.repo || !this.version || !this.urlTemplate)
-    ) {
-      throw new Error(
-        `if trying to fetch version from GitHub releases, "token", "repo", "version", and "urlTemplate" are required.`
-      );
-    }
+    // if (!this.name) {
+    //   throw new Error(
+    //     `"name" is required. This is used to set the executable name of the tool.`
+    //   );
+    // }
+    //
+    // if (!this.fromGitHubReleases && !this.url) {
+    //   throw new Error(`"url" is required when downloading a tool directly.`);
+    // }
+    //
+    // if (!this.fromGitHubReleases && !matchesUrlRegex(this.url)) {
+    //   throw new Error(`"url" supplied as input is not a valid URL.`);
+    // }
+    //
+    // if (this.fromGitHubReleases && !matchesUrlRegex(this.urlTemplate)) {
+    //   throw new Error(`"urlTemplate" supplied as input is not a valid URL.`);
+    // }
+    //
+    // if (getArchiveType(this.url) !== ArchiveType.None && !this.pathInArchive) {
+    //   throw new Error(
+    //     `"pathInArchive" is required when "url" points to an archive file`
+    //   );
+    // }
+    //
+    // if (
+    //   this.fromGitHubReleases &&
+    //   getArchiveType(this.urlTemplate) !== ArchiveType.None &&
+    //   !this.pathInArchive
+    // ) {
+    //   throw new Error(
+    //     `"pathInArchive" is required when "urlTemplate" points to an archive file.`
+    //   );
+    // }
+    //
+    // if (
+    //   this.fromGitHubReleases &&
+    //   (!this.token || !this.repo || !this.version || !this.urlTemplate)
+    // ) {
+    //   throw new Error(
+    //     `if trying to fetch version from GitHub releases, "token", "repo", "version", and "urlTemplate" are required.`
+    //   );
+    // }
   }
 }
 
