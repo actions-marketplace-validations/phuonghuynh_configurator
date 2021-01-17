@@ -93,3 +93,4 @@ typings/
 test/tmp
 .idea
 *.iml
+lib
